@@ -21,6 +21,11 @@ var ProxyClients = make(map[string]*models.ProxyClient)
 func InitProxyClients() {
 	for i := range conf.ProxyClients {
 		proxyClient := conf.ProxyClients[i]
+
+		if proxyClient.LocalHost == "" {
+			proxyClient.LocalHost = "localhost"
+		}
+
 		ProxyClients[proxyClient.Name] = proxyClient
 	}
 }

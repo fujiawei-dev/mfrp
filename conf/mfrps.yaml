@@ -1,9 +1,14 @@
 Common:
-    BindAddr: 0.0.0.0
-    BindPort: 9527
-    LogLevel: debug
+  ServerHost: localhost
+  ServerPort: 9527
+  LogLevel: debug
 ProxyServers:
-    - Name: mfrp
-      Password: mfrp
-      BindAddr: 0.0.0.0
-      ListenPort: 18123
+  - LocalPort: 13000
+    LocalHost: master
+    PassiveMode: true
+    BindAddr: 0.0.0.0
+    BindPort: 18124
+  - Name: mfrp
+    Password: mfrp
+    LocalPort: 13000
+    LocalHost: master

@@ -18,6 +18,7 @@ type ProxyClient struct {
 	// self (nat) -> server1 (public) && self (nat) -> server2 (nat)  => client <-> server1 <-> server2
 	Name      string `yaml:"Name,omitempty"`
 	Password  string `yaml:"Password,omitempty"`
+	LocalHost string `yaml:"LocalHost,omitempty"`
 	LocalPort int64  `yaml:"LocalPort,omitempty"`
 
 	// Passive listening port, then actively forwarding to local server
@@ -29,7 +30,7 @@ type ProxyClient struct {
 
 func (p *ProxyClient) GetLocalConn() (c *conn.Conn, err error) {
 	c = &conn.Conn{}
-	if err = c.ConnectServer("127.0.0.1", p.LocalPort); err != nil {
+	if err = c.ConnectServer(p.LocalHost, p.LocalPort); err != nil {
 		log.Errorf("ProxyName [%s], connect to local port error, %v", p.Name, err)
 	}
 	return
