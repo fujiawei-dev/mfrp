@@ -10,8 +10,8 @@ package main
 import (
 	"os"
 
-	"mfrp/pkg/utils/conn"
-	"mfrp/pkg/utils/log"
+	"github.com/fujiawei-dev/mfrp/pkg/utils/conn"
+	"github.com/fujiawei-dev/mfrp/pkg/utils/log"
 )
 
 func main() {

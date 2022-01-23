@@ -14,9 +14,9 @@ import (
 	"os"
 	"sync"
 
-	"mfrp/pkg/models"
-	"mfrp/pkg/utils/conn"
-	"mfrp/pkg/utils/log"
+	"github.com/fujiawei-dev/mfrp/pkg/models"
+	"github.com/fujiawei-dev/mfrp/pkg/utils/conn"
+	"github.com/fujiawei-dev/mfrp/pkg/utils/log"
 )
 
 func ControlProcess(cli *models.ProxyClient, wait *sync.WaitGroup) {

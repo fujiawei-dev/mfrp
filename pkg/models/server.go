@@ -9,10 +9,10 @@ package models
 
 import (
 	"container/list"
-	"mfrp/pkg/utils/log"
+	"github.com/fujiawei-dev/mfrp/pkg/utils/log"
 	"sync"
 
-	"mfrp/pkg/utils/conn"
+	"github.com/fujiawei-dev/mfrp/pkg/utils/conn"
 )
 
 const (

@@ -1,4 +1,4 @@
-module mfrp
+module github.com/fujiawei-dev/mfrp
 
 go 1.17
 

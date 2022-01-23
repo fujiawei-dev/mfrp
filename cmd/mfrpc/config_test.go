@@ -7,10 +7,14 @@
 
 package main
 
-import "testing"
+import (
+	"os"
+	"path/filepath"
+	"testing"
+)
 
 func TestConfig_Load(t *testing.T) {
-	if err := conf.Load("mfrpc.yaml"); err != nil {
+	if err := conf.Load(filepath.Join(os.TempDir(), "mfrpc.yaml")); err != nil {
 		t.Error(err)
 	}
 }

@@ -12,7 +12,8 @@ import (
 	"io/ioutil"
 
 	"gopkg.in/yaml.v3"
-	"mfrp/pkg/models"
+
+	"github.com/fujiawei-dev/mfrp/pkg/models"
 )
 
 var ProxyClients = make(map[string]*models.ProxyClient)

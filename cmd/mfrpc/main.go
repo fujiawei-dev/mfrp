@@ -11,7 +11,7 @@ import (
 	"os"
 	"sync"
 
-	"mfrp/pkg/utils/log"
+	"github.com/fujiawei-dev/mfrp/pkg/utils/log"
 )
 
 func main() {
