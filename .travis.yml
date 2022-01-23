@@ -1,0 +1,12 @@
+go_import_path: github.com/fujiawei-dev/mfrp
+sudo: false
+language: go
+
+go:
+  - 1.17.0
+
+install:
+  - make
+
+script:
+  - make test

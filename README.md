@@ -1,5 +1,7 @@
 # mfrp
 
+[![Build Status](https://travis-ci.org/fujiawei-dev/mfrp.svg)](https://travis-ci.org/fujiawei-dev/mfrp)
+
 A mini fast reverse proxy. Just for study.
 
 ## Passive Mode
