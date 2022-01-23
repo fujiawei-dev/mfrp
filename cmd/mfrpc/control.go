@@ -10,14 +10,21 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"io"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/fujiawei-dev/mfrp/pkg/models"
 	"github.com/fujiawei-dev/mfrp/pkg/utils/conn"
 	"github.com/fujiawei-dev/mfrp/pkg/utils/log"
 )
+
+const (
+	sleepMinDuration = 1
+	sleepMaxDuration = 60
+)
+
+var ErrAlreadyInUse = errors.New("already in use")
 
 func ControlProcess(cli *models.ProxyClient, wait *sync.WaitGroup) {
 	defer wait.Done()
@@ -26,25 +33,67 @@ func ControlProcess(cli *models.ProxyClient, wait *sync.WaitGroup) {
 		runPassiveMode(cli)
 	} else {
 		for {
-			if err := runActiveMode(cli); err != nil {
-				break
+			if err := runActiveMode(cli); err != nil && err != ErrAlreadyInUse {
+				panic(err)
 			}
+
+			time.Sleep(sleepMaxDuration)
 		}
 	}
 }
 
 func runActiveMode(cli *models.ProxyClient) (err error) {
-	c := &conn.Conn{}
+	c, err := loginToServer(cli)
 
-	if err = c.ConnectServer(conf.Common.ServerHost, conf.Common.ServerPort); err != nil {
-		log.Errorf(
-			"ProxyName [%s], connect to server [%s:%d] error, %v",
-			cli.Name, conf.Common.ServerHost, conf.Common.ServerPort, err,
-		)
+	if err != nil {
+		log.Errorf("ProxyName [%s], connect to server failed!", cli.Name)
 		return
 	}
 
 	defer c.Close()
+
+	for {
+		// ignore response content now
+		if _, err = c.ReadLine(); err != nil {
+			log.Errorf("ProxyName [%s], read from server error, %v", cli.Name, err)
+			var sleep time.Duration = sleepMinDuration
+			for {
+				log.Debugf("ProxyName [%s], try to reconnect to server[%s:%d]...",
+					cli.Name, conf.Common.ServerHost, conf.Common.ServerPort)
+
+				if cRetry, errRetry := loginToServer(cli); errRetry == nil {
+					c.Close()
+					c = cRetry
+					break
+				}
+
+				time.Sleep(time.Second * sleep)
+				if sleep < sleepMaxDuration {
+					sleep++
+				}
+			}
+
+			continue
+		}
+
+		_ = cli.StartTunnel(conf.Common.ServerHost, conf.Common.ServerPort)
+	}
+}
+
+func loginToServer(cli *models.ProxyClient) (c *conn.Conn, err error) {
+	c = &conn.Conn{}
+
+	if err = c.ConnectServer(conf.Common.ServerHost, conf.Common.ServerPort); err != nil {
+		log.Errorf("ProxyName [%s], connect to server [%s:%d] error, %v",
+			cli.Name, conf.Common.ServerHost, conf.Common.ServerPort, err)
+		return
+	}
+
+	defer func() {
+		if err != nil {
+			c.Close()
+		}
+	}()
 
 	req := &models.ClientCtlReq{
 		Type:      models.ControlConn,
@@ -73,27 +122,15 @@ func runActiveMode(cli *models.ProxyClient) (err error) {
 	}
 
 	if clientCtlRes.Code != models.Success {
-		log.Errorf("ProxyName [%s], start proxy error, %s", cli.Name, clientCtlRes.Message)
-
 		if clientCtlRes.Code == models.AlreadyInUse {
-			return nil
+			err = ErrAlreadyInUse
+		} else {
+			err = errors.New(clientCtlRes.Message)
 		}
-
-		return errors.New(clientCtlRes.Message)
+		log.Errorf("ProxyName [%s], start proxy error, %s", cli.Name, clientCtlRes.Message)
 	}
 
-	for {
-		// ignore response content now
-		if _, err = c.ReadLine(); err == io.EOF {
-			log.Debugf("ProxyName [%s], server close this control conn", cli.Name)
-			return nil
-		} else if err != nil {
-			log.Warnf("ProxyName [%s], read from server error, %v", cli.Name, err)
-			return nil
-		}
-
-		_ = cli.StartTunnel(conf.Common.ServerHost, conf.Common.ServerPort)
-	}
+	return
 }
 
 func runPassiveMode(cli *models.ProxyClient) {
