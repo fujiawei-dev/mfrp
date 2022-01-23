@@ -1,0 +1,12 @@
+Common:
+    ServerHost: localhost
+    ServerPort: 9527
+    LogLevel: debug
+ProxyServers:
+    - LocalPort: 8080
+      PassiveMode: true
+      BindAddr: 0.0.0.0
+      BindPort: 18124
+    - Name: mfrp
+      Password: mfrp
+      LocalPort: 8080

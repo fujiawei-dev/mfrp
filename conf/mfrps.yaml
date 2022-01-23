@@ -1,0 +1,9 @@
+Common:
+    BindAddr: 0.0.0.0
+    BindPort: 9527
+    LogLevel: debug
+ProxyServers:
+    - Name: mfrp
+      Password: mfrp
+      BindAddr: 0.0.0.0
+      ListenPort: 18123
